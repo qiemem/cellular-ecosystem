@@ -1,5 +1,7 @@
 extensions [ profiler ]
 
+globals [ colors ]
+
 patches-own [
   can-eat
 ]
@@ -12,6 +14,7 @@ end
 ;; [[color [colors of prey]] [color [colors of prey]] ...]
 to setup-food-web [ food-web ]
   ca
+  set colors map first food-web
   resize-world 0 (world-size - 1) 0 (world-size - 1)
   set-patch-size 500 / world-size
   ask patches [
@@ -92,8 +95,8 @@ end
 GRAPHICS-WINDOW
 210
 10
-719
-540
+720
+541
 -1
 -1
 2.5
@@ -118,9 +121,9 @@ ticks
 
 BUTTON
 16
-291
+232
 82
-324
+265
 NIL
 setup
 NIL
@@ -135,9 +138,9 @@ NIL
 
 BUTTON
 106
-291
+232
 169
-324
+265
 NIL
 go
 T
@@ -163,9 +166,9 @@ String (reporter)
 
 SLIDER
 9
-338
+279
 201
-371
+312
 swap-exponent
 swap-exponent
 -2
@@ -178,9 +181,9 @@ HORIZONTAL
 
 SLIDER
 8
-384
+325
 202
-417
+358
 reproduce-exponent
 reproduce-exponent
 -2
@@ -193,9 +196,9 @@ HORIZONTAL
 
 SLIDER
 9
-424
+365
 201
-457
+398
 select-exponent
 select-exponent
 -2
@@ -208,9 +211,9 @@ HORIZONTAL
 
 SLIDER
 13
-203
+184
 185
-236
+217
 world-size
 world-size
 0
@@ -220,6 +223,23 @@ world-size
 1
 NIL
 HORIZONTAL
+
+PLOT
+5
+407
+205
+557
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"foreach colors [\n  create-temporary-plot-pen (word ?)\n  ifelse is-number? ? [\n    set-plot-pen-color ?\n  ] [\n    set-plot-pen-color approximate-rgb (item 0 ?) (item 1 ?) (item 2 ?)\n  ]\n]" "foreach colors [\n  set-current-plot-pen (word ?)\n  plot count patches with [ pcolor = ? ]\n]"
+PENS
 
 @#$#@#$#@
 ## WHAT IS IT?

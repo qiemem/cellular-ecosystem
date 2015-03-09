@@ -10,17 +10,45 @@ globals [
   new-link
 ]
 
+turtles-own [
+  pop
+  total-pred
+  total-prey
+]
+
 to setup
-  ls:reset
   clear-all
   set-default-shape turtles "circle"
-  ls:load-gui-model "RPS-Swapper.nlogo"
 end
 
-to setup-model
+to create-model
   let food-web (word "[" (reduce [(word ?1 "\n " ?2)] serialize-food-web) "]")
-  (ls:ask 0 "set food-web-configuration ?" food-web)
-  ;(ls:ask 0 "setup-food-web ?" serialize-food-web)
+  (ls:load-gui-model "RPS-Swapper.nlogo" task [
+    (ls:ask ? "set food-web-configuration ? setup" food-web)
+  ])
+end
+
+to setup-diffusion
+  clear-all-plots
+  ask turtles [
+    set pop random-normal 1 0.01
+    set size pop
+  ]
+  reset-ticks
+end
+
+to go-diffusion
+  let dt 0.01
+  let rate 0.5 * dt
+  ask turtles [
+    set total-pred sum [ pop ] of out-link-neighbors
+    set total-prey sum [ pop ] of in-link-neighbors
+  ]
+  ask turtles [
+    set pop pop + rate * pop * total-prey - rate * pop * total-pred
+    set size pop
+  ]
+  tick
 end
   
 
@@ -148,11 +176,25 @@ to create-star
     create-link-to turtle ((who + n) mod num-turtles)
   ]
 end
+
+to create-random-fair
+  ca
+  while [ not any? turtles or any? turtles with [ count my-out-links < degree ] ] [
+    ca
+    cro num-turtles [
+      fd 10
+      let targets other turtles with [ count my-in-links < degree and not out-link-neighbor? myself ]
+      if count targets >= degree [
+        create-links-to n-of degree targets
+      ]
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-221
+233
 10
-651
+663
 461
 10
 10
@@ -221,12 +263,12 @@ NIL
 1
 
 BUTTON
-52
-401
-163
-434
+41
+430
+155
+463
 NIL
-setup-model
+create-model
 NIL
 1
 T
@@ -280,7 +322,7 @@ num-turtles
 num-turtles
 0
 25
-5
+7
 1
 1
 NIL
@@ -304,9 +346,9 @@ NIL
 1
 
 BUTTON
-23
+49
 295
-131
+157
 328
 NIL
 create-star
@@ -319,6 +361,89 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+676
+31
+804
+64
+NIL
+setup-diffusion
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+817
+30
+927
+63
+NIL
+go-diffusion
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+738
+165
+938
+315
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+false
+"ask turtles [\n  create-temporary-plot-pen (word color)\n  set-plot-pen-color approximate-rgb item 0 color item 1 color item 2 color\n]" "ask turtles [\n  set-current-plot-pen (word color)\n  plot pop\n]"
+PENS
+
+BUTTON
+24
+373
+195
+406
+NIL
+create-random-fair
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+20
+332
+192
+365
+degree
+degree
+0
+ceiling (num-turtles / 2) - 1
+2
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
